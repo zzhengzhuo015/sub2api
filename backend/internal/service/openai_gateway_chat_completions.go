@@ -978,7 +978,12 @@ func (s *OpenAIGatewayService) buildChatCompletionsPassthroughRequest(
 	if err != nil {
 		return nil, err
 	}
-	targetURL := buildOpenAIChatCompletionsURL(validatedURL)
+	var targetURL string
+	if account.IsOpenAIOAuth() {
+		targetURL = buildOpenAIResponsesURL(validatedURL)
+	} else {
+		targetURL = buildOpenAIChatCompletionsURL(validatedURL)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, targetURL, bytes.NewReader(body))
 	if err != nil {
