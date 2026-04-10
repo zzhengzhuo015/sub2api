@@ -65,20 +65,10 @@ describe('buildSystemLogDetail', () => {
       component: 'handler.openai_gateway.chat_completions',
       message: 'openai_chat_completions.crypto_provider_response_prepared',
       extra: {
-        tool_calls: [
-          {
-            id: 'call_crypto_1',
-            type: 'function',
-            function: {
-              name: 'get_funding_rate',
-              arguments: '{"symbol":"BTC"}',
-            },
-          },
-        ],
+        tool_calls: ['crypto-market.fetch_price'],
       },
     } satisfies OpsSystemLog)
 
-    expect(detail).toContain('tool_calls=[{"id":"call_crypto_1"')
-    expect(detail).toContain('"name":"get_funding_rate"')
+    expect(detail).toContain('tool_calls=["crypto-market.fetch_price"]')
   })
 })

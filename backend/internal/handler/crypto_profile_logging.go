@@ -199,7 +199,7 @@ func logCryptoPrefetchResponse(
 		fields = append(fields, zap.Strings("crypto_adapter_names", prepared.AdapterNames))
 	}
 	if len(prepared.ToolCalls) > 0 {
-		fields = append(fields, zap.Any("tool_calls", prepared.ToolCalls))
+		fields = append(fields, zap.Strings("tool_calls", prepared.ToolCalls))
 	}
 
 	reqLog.Info("openai_chat_completions.crypto_provider_response_prepared", fields...)

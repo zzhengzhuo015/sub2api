@@ -199,16 +199,7 @@ func TestLogCryptoPrefetchResponse_LogsAdapterNamesWhenPresent(t *testing.T) {
 	reqLog := requestLogger(c, "handler.openai_gateway.chat_completions")
 	logCryptoPrefetchResponse(reqLog, &service.Account{ID: 42}, &service.OpenAICryptoChatPreparation{
 		AdapterNames: []string{"dexscreener", "coinglass"},
-		ToolCalls: []map[string]any{
-			{
-				"id":   "call_crypto_1",
-				"type": "function",
-				"function": map[string]any{
-					"name":      "get_funding_rate",
-					"arguments": `{"symbol":"BTC"}`,
-				},
-			},
-		},
+		ToolCalls:    []string{"crypto-market.fetch_price"},
 		PrefetchResult: &service.OpenAIForwardResult{
 			RequestID: "rid_crypto_prefetch",
 		},
@@ -219,6 +210,5 @@ func TestLogCryptoPrefetchResponse_LogsAdapterNamesWhenPresent(t *testing.T) {
 	require.True(t, logSink.ContainsFieldValue("upstream_request_id", "rid_crypto_prefetch"))
 	require.True(t, logSink.ContainsFieldValue("crypto_adapter_names", "dexscreener"))
 	require.True(t, logSink.ContainsFieldValue("crypto_adapter_names", "coinglass"))
-	require.True(t, logSink.ContainsFieldValue("tool_calls", "call_crypto_1"))
-	require.True(t, logSink.ContainsFieldValue("tool_calls", "get_funding_rate"))
+	require.True(t, logSink.ContainsFieldValue("tool_calls", "crypto-market.fetch_price"))
 }

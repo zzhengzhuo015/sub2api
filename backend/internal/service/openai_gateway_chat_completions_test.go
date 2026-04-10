@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -297,12 +296,11 @@ func TestOpenAIGatewayService_PrepareCryptoEnhancedChatRequest_PrependsCryptoDat
 		StatusCode: http.StatusOK,
 		Header:     http.Header{"Content-Type": []string{"application/json"}, "X-Request-ID": []string{"rid_crypto_data"}},
 		Body: io.NopCloser(strings.NewReader(`{
-			"choices":[{"index":0,"message":{"role":"assistant","tool_calls":[{"id":"call_crypto_1","type":"function","function":{"name":"get_funding_rate","arguments":"{\"symbol\":\"BTC\"}"}}]}}],
 			"crypto":{
 				"crypto_data":{
 					"intent":"token_analysis",
 					"sources":[
-						{"name":"coinglass","status":"success","meta":{"adapter_names":["dexscreener","coinglass"]}}
+						{"name":"coinglass","status":"success","meta":{"adapter_names":["dexscreener","coinglass"],"tool_calls":["crypto-market.fetch_price"]}}
 					]
 				}
 			}
@@ -386,10 +384,7 @@ func TestOpenAIGatewayService_PrepareCryptoEnhancedChatRequest_PrependsCryptoDat
 	require.NotNil(t, prepared.PrefetchResult)
 	require.Equal(t, []string{"dexscreener", "coinglass"}, prepared.AdapterNames)
 	require.Len(t, prepared.ToolCalls, 1)
-	firstToolCall, err := json.Marshal(prepared.ToolCalls[0])
-	require.NoError(t, err)
-	require.Equal(t, "call_crypto_1", gjson.GetBytes(firstToolCall, "id").String())
-	require.Equal(t, "get_funding_rate", gjson.GetBytes(firstToolCall, "function.name").String())
+	require.Equal(t, "crypto-market.fetch_price", prepared.ToolCalls[0])
 }
 
 func TestOpenAIGatewayService_PrepareCryptoEnhancedChatRequest_ParsesCryptoDataFromStreamPayload(t *testing.T) {
